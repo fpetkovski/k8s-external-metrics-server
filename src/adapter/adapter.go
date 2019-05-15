@@ -18,7 +18,6 @@ package adapter
 
 import (
 	"external-metrics/beanstalkd_client"
-	"fmt"
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -75,8 +74,6 @@ func pollMetrics(provider *metricsProvider)  {
 		provider.externalMetrics = []externalMetric{
 			makeMetric("default", totalJobs),
 		}
-		fmt.Println(totalJobs)
-		fmt.Println("Sleeping")
 		time.Sleep(5 * time.Second)
 	}
 }
