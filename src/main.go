@@ -25,7 +25,7 @@ import (
 	"k8s.io/component-base/logs"
 	"k8s.io/klog"
 
-	adapter "external-metrics/adapter/provider"
+	"external-metrics/adapter"
 	basecmd "github.com/kubernetes-incubator/custom-metrics-apiserver/pkg/cmd"
 	"github.com/kubernetes-incubator/custom-metrics-apiserver/pkg/provider"
 )
@@ -71,6 +71,6 @@ func main() {
 		klog.Fatal(http.ListenAndServe(":8080", nil))
 	}()
 	if err := cmd.Run(wait.NeverStop); err != nil {
-		klog.Fatalf("unable to run custom metrics adapter: %v", err)
+		klog.Fatalf("unable to run external metrics adapter: %v", err)
 	}
 }
