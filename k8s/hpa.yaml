@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world
+  namespace: external-metrics
+  labels:
+    app: hello-world
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world
+  template:
+    metadata:
+      labels:
+        app: hello-world
+    spec:
+      containers:
+        - name: hello-world
+          image: nginxdemos/hello
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: hello-world-autoscaler
+  namespace: external-metrics
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hello-world
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - type: External
+      external:
+        metricName: tube-default
+        metricSelector:
+          matchLabels:
+            tube: default
+        targetAverageValue: "2"

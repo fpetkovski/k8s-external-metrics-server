@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beanstalkd-deployment
+  namespace: external-metrics
+  labels:
+    app: beanstalkd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beanstalkd
+  template:
+    metadata:
+      labels:
+        app: beanstalkd
+    spec:
+      containers:
+        - name: beanstalkd
+          image: schickling/beanstalkd
+        - name: beanstalkd-console
+          image: schickling/beanstalkd-console
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beanstalkd
+  namespace: external-metrics
+spec:
+  type: NodePort
+  selector:
+    app: beanstalkd
+  ports:
+    - name: console
+      protocol: TCP
+      port: 2080
+      targetPort: 2080
+      nodePort: 30001
+    - name: queue
+      protocol: TCP
+      port: 11300
+      targetPort: 11300
+      nodePort: 30002
