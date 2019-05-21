@@ -37,7 +37,7 @@ type externalMetric struct {
 }
 
 var (
-	testingExternalMetrics = []externalMetric{
+	defaultExternalMetrics = []externalMetric{
 		makeMetric("default", 0),
 	}
 )
@@ -78,11 +78,11 @@ func pollMetrics(provider *metricsProvider)  {
 	}
 }
 
-func NewFakeProvider(client dynamic.Interface, mapper apimeta.RESTMapper) provider.ExternalMetricsProvider {
+func NewProvider(client dynamic.Interface, mapper apimeta.RESTMapper) provider.ExternalMetricsProvider {
 	provider := &metricsProvider{
 		client:          client,
 		mapper:          mapper,
-		externalMetrics: testingExternalMetrics,
+		externalMetrics: defaultExternalMetrics,
 	}
 
 	go pollMetrics(provider)

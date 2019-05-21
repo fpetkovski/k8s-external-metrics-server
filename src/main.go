@@ -48,7 +48,7 @@ func (a *SampleAdapter) makeProviderOrDie() provider.ExternalMetricsProvider {
 		klog.Fatalf("unable to construct discovery REST mapper: %v", err)
 	}
 
-	return adapter.NewFakeProvider(client, mapper)
+	return adapter.NewProvider(client, mapper)
 }
 
 func main() {
