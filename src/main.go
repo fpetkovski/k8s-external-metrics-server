@@ -30,14 +30,14 @@ import (
 	"github.com/kubernetes-incubator/custom-metrics-apiserver/pkg/provider"
 )
 
-type SampleAdapter struct {
+type ExternalMetricsAdapter struct {
 	basecmd.AdapterBase
 
 	// Message is printed on succesful startup
 	Message string
 }
 
-func (a *SampleAdapter) makeProviderOrDie() provider.ExternalMetricsProvider {
+func (a *ExternalMetricsAdapter) makeProviderOrDie() provider.ExternalMetricsProvider {
 	client, err := a.DynamicClient()
 	if err != nil {
 		klog.Fatalf("unable to construct dynamic client: %v", err)
@@ -55,7 +55,7 @@ func main() {
 	logs.InitLogs()
 	defer logs.FlushLogs()
 
-	cmd := &SampleAdapter{}
+	cmd := &ExternalMetricsAdapter{}
 	cmd.Flags().StringVar(&cmd.Message, "msg", "starting adapter...", "startup message")
 	cmd.Flags().AddGoFlagSet(flag.CommandLine) // make sure we get the klog flags
 	cmd.Flags().Parse(os.Args)
