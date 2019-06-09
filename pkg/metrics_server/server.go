@@ -5,7 +5,6 @@ import (
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/metrics/pkg/apis/external_metrics"
 	"sync"
 	"time"
@@ -20,31 +19,29 @@ var (
 )
 
 type server struct {
-	client dynamic.Interface
 	mapper apimeta.RESTMapper
 
 	valuesLock      sync.RWMutex
 	externalMetrics []externalMetric
 }
 
-func NewServer(client dynamic.Interface, mapper apimeta.RESTMapper) provider.ExternalMetricsProvider {
-	provider := &server{
-		client:          client,
+func NewServer(mapper apimeta.RESTMapper) provider.ExternalMetricsProvider {
+	server := &server{
 		mapper:          mapper,
 		externalMetrics: initialMetrics,
 	}
 
-	go pollMetrics(provider)
+	go pollMetrics(server)
 
-	return provider
+	return server
 }
 
-func (provider *server) GetExternalMetric(namespace string, metricSelector labels.Selector, info provider.ExternalMetricInfo) (*external_metrics.ExternalMetricValueList, error) {
-	provider.valuesLock.RLock()
-	defer provider.valuesLock.RUnlock()
+func (server *server) GetExternalMetric(namespace string, metricSelector labels.Selector, info provider.ExternalMetricInfo) (*external_metrics.ExternalMetricValueList, error) {
+	server.valuesLock.RLock()
+	defer server.valuesLock.RUnlock()
 
 	var matchingMetrics []external_metrics.ExternalMetricValue
-	for _, metric := range provider.externalMetrics {
+	for _, metric := range server.externalMetrics {
 		if metric.info.Metric == info.Metric &&
 			metricSelector.Matches(labels.Set(metric.labels)) {
 			metricValue := metric.value
@@ -57,32 +54,32 @@ func (provider *server) GetExternalMetric(namespace string, metricSelector label
 	}, nil
 }
 
-func (provider *server) ListAllExternalMetrics() []provider.ExternalMetricInfo {
-	provider.valuesLock.RLock()
-	defer provider.valuesLock.RUnlock()
+func (server *server) ListAllExternalMetrics() []provider.ExternalMetricInfo {
+	server.valuesLock.RLock()
+	defer server.valuesLock.RUnlock()
 
 	var externalMetricsInfo []provider.ExternalMetricInfo
-	for _, metric := range provider.externalMetrics {
+	for _, metric := range server.externalMetrics {
 		externalMetricsInfo = append(externalMetricsInfo, metric.info)
 	}
 	return externalMetricsInfo
 }
 
-func pollMetrics(provider *server) {
+func pollMetrics(server *server) {
 	beanstalkdClient := beanstalkd_client.NewClient("beanstalkd", "11300")
 
 	for {
 		totalJobs := beanstalkdClient.GetJobsCount("default")
-		provider.updateTotalJobs(totalJobs)
+		server.updateTotalJobs(totalJobs)
 		time.Sleep(5 * time.Second)
 	}
 }
 
-func (provider *server) updateTotalJobs(totalJobs int64) {
-	provider.valuesLock.RLock()
-	defer provider.valuesLock.RUnlock()
+func (server *server) updateTotalJobs(totalJobs int64) {
+	server.valuesLock.RLock()
+	defer server.valuesLock.RUnlock()
 
-	provider.externalMetrics = []externalMetric{
+	server.externalMetrics = []externalMetric{
 		makeMetric("default", totalJobs),
 	}
 }

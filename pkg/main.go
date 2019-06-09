@@ -19,18 +19,13 @@ type ExternalMetricsAdapter struct {
 	Message string
 }
 
-func (a *ExternalMetricsAdapter) makeProviderOrDie() provider.ExternalMetricsProvider {
-	client, err := a.DynamicClient()
-	if err != nil {
-		klog.Fatalf("unable to construct dynamic client: %v", err)
-	}
-
+func (a *ExternalMetricsAdapter) makeServerOrDie() provider.ExternalMetricsProvider {
 	mapper, err := a.RESTMapper()
 	if err != nil {
 		klog.Fatalf("unable to construct discovery REST mapper: %v", err)
 	}
 
-	return metrics_server.NewServer(client, mapper)
+	return metrics_server.NewServer(mapper)
 }
 
 func main() {
@@ -41,8 +36,8 @@ func main() {
 	cmd.Flags().StringVar(&cmd.Message, "msg", "starting adapter...", "startup message")
 	cmd.Flags().AddGoFlagSet(flag.CommandLine) // make sure we get the klog flags
 
-	externalMetricsProvider := cmd.makeProviderOrDie()
-	cmd.WithExternalMetrics(externalMetricsProvider)
+	externalMetricsServer := cmd.makeServerOrDie()
+	cmd.WithExternalMetrics(externalMetricsServer)
 
 	klog.Infof(cmd.Message)
 
