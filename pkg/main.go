@@ -7,6 +7,7 @@ import (
 	"k8s.io/component-base/logs"
 	"k8s.io/klog"
 	"net/http"
+	"os"
 
 	basecmd "github.com/kubernetes-incubator/custom-metrics-apiserver/pkg/cmd"
 )
@@ -18,7 +19,6 @@ type ExternalMetricsAdapter struct {
 	Message string
 }
 
-
 func main() {
 	logs.InitLogs()
 	defer logs.FlushLogs()
@@ -26,9 +26,10 @@ func main() {
 	cmd := &ExternalMetricsAdapter{}
 	cmd.Flags().StringVar(&cmd.Message, "msg", "starting adapter...", "startup message")
 	cmd.Flags().AddGoFlagSet(flag.CommandLine) // make sure we get the klog flags
+	cmd.Flags().Parse(os.Args)
 
-	externalMetricsServer := metrics_server.NewServer()
-	cmd.WithExternalMetrics(externalMetricsServer)
+	externalMetricsProvider := metrics_server.NewServer()
+	cmd.WithExternalMetrics(externalMetricsProvider)
 
 	klog.Infof(cmd.Message)
 

@@ -73,6 +73,7 @@ func (server *server) pollMetrics() {
 	for {
 		totalJobs := server.queue.GetJobsCount("default")
 		server.updateTotalJobs(totalJobs)
+
 		time.Sleep(5 * time.Second)
 	}
 }

@@ -44,7 +44,7 @@ rules:
 - apiGroups:
   - external.metrics.k8s.io
   resources: ["*"]
-  verbs: ["get"]
+  verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
