@@ -10,13 +10,13 @@ type beanstalkdClient struct {
 }
 
 func NewClient(host string, port string) *beanstalkdClient {
-	c, err := beanstalk.Dial("tcp", host + ":" + port)
+	c, err := beanstalk.Dial("tcp", host+":"+port)
 	if err != nil {
 		panic(err)
 	}
 
 	return &beanstalkdClient{
-		connection:c,
+		connection: c,
 	}
 }
 
@@ -42,5 +42,6 @@ func (client *beanstalkdClient) GetJobsCount(tubeName string) int64 {
 
 	readyJobs := getValue(stats, "current-jobs-ready")
 	reservedJobs := getValue(stats, "current-jobs-reserved")
+
 	return readyJobs + reservedJobs
 }

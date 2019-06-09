@@ -1,4 +1,4 @@
-package adapter
+package metrics_server
 
 import (
 	"external-metrics/pkg/beanstalkd_client"
@@ -19,7 +19,7 @@ var (
 	}
 )
 
-type metricsProvider struct {
+type server struct {
 	client dynamic.Interface
 	mapper apimeta.RESTMapper
 
@@ -27,8 +27,8 @@ type metricsProvider struct {
 	externalMetrics []externalMetric
 }
 
-func NewProvider(client dynamic.Interface, mapper apimeta.RESTMapper) provider.ExternalMetricsProvider {
-	provider := &metricsProvider{
+func NewServer(client dynamic.Interface, mapper apimeta.RESTMapper) provider.ExternalMetricsProvider {
+	provider := &server{
 		client:          client,
 		mapper:          mapper,
 		externalMetrics: initialMetrics,
@@ -39,7 +39,7 @@ func NewProvider(client dynamic.Interface, mapper apimeta.RESTMapper) provider.E
 	return provider
 }
 
-func (provider *metricsProvider) GetExternalMetric(namespace string, metricSelector labels.Selector, info provider.ExternalMetricInfo) (*external_metrics.ExternalMetricValueList, error) {
+func (provider *server) GetExternalMetric(namespace string, metricSelector labels.Selector, info provider.ExternalMetricInfo) (*external_metrics.ExternalMetricValueList, error) {
 	provider.valuesLock.RLock()
 	defer provider.valuesLock.RUnlock()
 
@@ -57,7 +57,7 @@ func (provider *metricsProvider) GetExternalMetric(namespace string, metricSelec
 	}, nil
 }
 
-func (provider *metricsProvider) ListAllExternalMetrics() []provider.ExternalMetricInfo {
+func (provider *server) ListAllExternalMetrics() []provider.ExternalMetricInfo {
 	provider.valuesLock.RLock()
 	defer provider.valuesLock.RUnlock()
 
@@ -68,8 +68,7 @@ func (provider *metricsProvider) ListAllExternalMetrics() []provider.ExternalMet
 	return externalMetricsInfo
 }
 
-
-func pollMetrics(provider *metricsProvider)  {
+func pollMetrics(provider *server) {
 	beanstalkdClient := beanstalkd_client.NewClient("beanstalkd", "11300")
 
 	for {
@@ -79,7 +78,7 @@ func pollMetrics(provider *metricsProvider)  {
 	}
 }
 
-func (provider *metricsProvider) updateTotalJobs(totalJobs int64) {
+func (provider *server) updateTotalJobs(totalJobs int64) {
 	provider.valuesLock.RLock()
 	defer provider.valuesLock.RUnlock()
 

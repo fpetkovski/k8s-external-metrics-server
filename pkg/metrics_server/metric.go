@@ -1,4 +1,4 @@
-package adapter
+package metrics_server
 
 import (
 	"github.com/kubernetes-incubator/custom-metrics-apiserver/pkg/provider"
