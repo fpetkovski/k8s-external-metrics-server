@@ -6,7 +6,7 @@
 
 // This program generates the trie for width operations. The generated table
 // includes width category information as well as the normalization mappings.
-package main
+package width
 
 import (
 	"bytes"

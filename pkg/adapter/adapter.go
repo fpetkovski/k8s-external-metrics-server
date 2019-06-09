@@ -17,7 +17,7 @@ limitations under the License.
 package adapter
 
 import (
-	"external-metrics/beanstalkd_client"
+	"external-metrics/pkg/beanstalkd_client"
 	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

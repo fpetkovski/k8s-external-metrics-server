@@ -4,7 +4,7 @@
 
 // +build ignore
 
-package main
+package width
 
 // elem is an entry of the width trie. The high byte is used to encode the type
 // of the rune. The low byte is used to store the index to a mapping entry in
