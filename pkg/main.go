@@ -18,12 +18,10 @@ package main
 
 import (
 	"flag"
-	"net/http"
-	"os"
-
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/component-base/logs"
 	"k8s.io/klog"
+	"net/http"
 
 	"external-metrics/pkg/adapter"
 	basecmd "github.com/kubernetes-incubator/custom-metrics-apiserver/pkg/cmd"
@@ -58,13 +56,11 @@ func main() {
 	cmd := &ExternalMetricsAdapter{}
 	cmd.Flags().StringVar(&cmd.Message, "msg", "starting adapter...", "startup message")
 	cmd.Flags().AddGoFlagSet(flag.CommandLine) // make sure we get the klog flags
-	cmd.Flags().Parse(os.Args)
 
-	testProvider := cmd.makeProviderOrDie()
-	cmd.WithExternalMetrics(testProvider)
+	externalMetricsProvider := cmd.makeProviderOrDie()
+	cmd.WithExternalMetrics(externalMetricsProvider)
 
 	klog.Infof(cmd.Message)
-	// Set up POST endpoint for writing fake metric values
 
 	go func() {
 		// Open port for POSTing fake metrics
