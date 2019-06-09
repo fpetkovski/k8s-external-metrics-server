@@ -9,7 +9,6 @@ import (
 	"net/http"
 
 	basecmd "github.com/kubernetes-incubator/custom-metrics-apiserver/pkg/cmd"
-	"github.com/kubernetes-incubator/custom-metrics-apiserver/pkg/provider"
 )
 
 type ExternalMetricsAdapter struct {
@@ -19,14 +18,6 @@ type ExternalMetricsAdapter struct {
 	Message string
 }
 
-func (a *ExternalMetricsAdapter) makeServerOrDie() provider.ExternalMetricsProvider {
-	mapper, err := a.RESTMapper()
-	if err != nil {
-		klog.Fatalf("unable to construct discovery REST mapper: %v", err)
-	}
-
-	return metrics_server.NewServer(mapper)
-}
 
 func main() {
 	logs.InitLogs()
@@ -36,7 +27,7 @@ func main() {
 	cmd.Flags().StringVar(&cmd.Message, "msg", "starting adapter...", "startup message")
 	cmd.Flags().AddGoFlagSet(flag.CommandLine) // make sure we get the klog flags
 
-	externalMetricsServer := cmd.makeServerOrDie()
+	externalMetricsServer := metrics_server.NewServer()
 	cmd.WithExternalMetrics(externalMetricsServer)
 
 	klog.Infof(cmd.Message)

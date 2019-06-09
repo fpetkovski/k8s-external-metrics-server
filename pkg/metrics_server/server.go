@@ -2,7 +2,6 @@ package metrics_server
 
 import (
 	"external-metrics/pkg/beanstalkd_client"
-	apimeta "k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/metrics/pkg/apis/external_metrics"
@@ -18,20 +17,25 @@ var (
 	}
 )
 
-type server struct {
-	mapper apimeta.RESTMapper
+type queueInterface interface {
+	GetJobsCount(tubeName string) int64
+}
 
+type server struct {
 	valuesLock      sync.RWMutex
+	queue           queueInterface
 	externalMetrics []externalMetric
 }
 
-func NewServer(mapper apimeta.RESTMapper) provider.ExternalMetricsProvider {
+func NewServer() provider.ExternalMetricsProvider {
+	beanstalkdClient := beanstalkd_client.NewClient("beanstalkd", "11300")
+
 	server := &server{
-		mapper:          mapper,
 		externalMetrics: initialMetrics,
+		queue:           beanstalkdClient,
 	}
 
-	go pollMetrics(server)
+	go server.pollMetrics()
 
 	return server
 }
@@ -65,11 +69,9 @@ func (server *server) ListAllExternalMetrics() []provider.ExternalMetricInfo {
 	return externalMetricsInfo
 }
 
-func pollMetrics(server *server) {
-	beanstalkdClient := beanstalkd_client.NewClient("beanstalkd", "11300")
-
+func (server *server) pollMetrics() {
 	for {
-		totalJobs := beanstalkdClient.GetJobsCount("default")
+		totalJobs := server.queue.GetJobsCount("default")
 		server.updateTotalJobs(totalJobs)
 		time.Sleep(5 * time.Second)
 	}

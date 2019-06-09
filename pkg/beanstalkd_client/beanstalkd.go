@@ -20,15 +20,6 @@ func NewClient(host string, port string) *beanstalkdClient {
 	}
 }
 
-func getValue(stats map[string]string, item string) int64 {
-	value, err := strconv.ParseInt(stats[item], 10, 64)
-	if err != nil {
-		panic(err)
-	}
-
-	return value
-}
-
 func (client *beanstalkdClient) GetJobsCount(tubeName string) int64 {
 	tube := beanstalk.Tube{
 		Conn: client.connection,
@@ -44,4 +35,13 @@ func (client *beanstalkdClient) GetJobsCount(tubeName string) int64 {
 	reservedJobs := getValue(stats, "current-jobs-reserved")
 
 	return readyJobs + reservedJobs
+}
+
+func getValue(stats map[string]string, item string) int64 {
+	value, err := strconv.ParseInt(stats[item], 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return value
 }
