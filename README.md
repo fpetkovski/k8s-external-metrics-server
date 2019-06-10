@@ -1,4 +1,7 @@
-### Prerequisites
+See the related [post](https://fpetkovski.github.io/2019/05/20/kubernetes-external-metrics/) 
+if you are interested in a walkthrough of the project.
+
+#### Prerequisites
 In order to build and deploy the project using the 
 instructions in this README, make sure you have 
 the following prerequisites installed locally  
@@ -20,7 +23,7 @@ Access the external metrics by querying the kubernetes API directly:
 
 ````kubectl get --raw /apis/external.metrics.k8s.io/v1beta1/namespaces/default/tube-default````
 
-### Tear down
+#### Tear down
 When you are finished, you can clean up by executing
 
 `make delete`
