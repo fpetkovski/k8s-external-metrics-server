@@ -19,3 +19,8 @@ Once the docker image is built, you can deploy it using:
 Access the external metrics by querying the kubernetes API directly:
 
 ````kubectl get --raw /apis/external.metrics.k8s.io/v1beta1/namespaces/default/tube-default````
+
+### Tear down
+When you are finished, you can clean up by executing
+
+`make delete`
